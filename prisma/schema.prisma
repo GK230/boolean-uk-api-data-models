@@ -1,11 +1,50 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOWDB")
 }
 
 generator client {
   provider = "prisma-client-js"
+}
+
+model Designer {
+  id        Int      @default(autoincrement()) @id
+  firstName String
+  lastName  String
+  outfits   Outfit[]
+  eventId   Int?
+}
+
+model Event {
+  id        Int        @default(autoincrement()) @id
+  location  String
+  guests    Guest[]
+  designers Designer[]
+}
+
+model Guest {
+  id        Int    @default(autoincrement()) @id
+  firstName String
+  lastName  String
+  outfitId  Int
+  eventId   Int
+}
+
+model Model {
+  id        Int      @default(autoincrement()) @id
+  firstName String
+  lastName  String
+  outfits   Outfit[]
+}
+
+model Outfit {
+  id          Int      @default(autoincrement()) @id
+  season      String
+  description String
+  guests      Guest[]
+  designerId  Int
+  designer    Designer @relation(fields: [designerId], references: [id])
+  modelId     Int
+  model       Model    @relation(fields: [modelId], references: [id])
 }
