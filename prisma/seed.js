@@ -1,3 +1,7 @@
+const { PrismaClient } = require("@prisma/client");
+
+const dbClient = new PrismaClient();
+
 const designers = [
   {
     firstName: "Marc",
@@ -135,3 +139,8 @@ const outfits = [
     season: "AW",
   },
 ];
+
+const getRandomElement = (array) => {
+  const number = Math.floor(Math.random() * array.length);
+  return array[number];
+};

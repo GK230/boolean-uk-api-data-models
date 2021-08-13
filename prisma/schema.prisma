@@ -13,38 +13,42 @@ model Designer {
   firstName String
   lastName  String
   outfits   Outfit[]
-  eventId   Int?
+  eventId   Int
+  event     Event    @relation(fields: [eventId], references: [id])
 }
 
 model Event {
   id        Int        @default(autoincrement()) @id
-  location  String
-  guests    Guest[]
+  name      String
+  guests    Guest[]    @relation(references: [id])
   designers Designer[]
+  modelId   Int?
 }
 
 model Guest {
-  id        Int    @default(autoincrement()) @id
-  firstName String
-  lastName  String
-  outfitId  Int
-  eventId   Int
-}
-
-model Model {
   id        Int      @default(autoincrement()) @id
   firstName String
   lastName  String
+  events    Event[]  @relation(references: [id])
   outfits   Outfit[]
 }
 
+model Model {
+  id        Int     @default(autoincrement()) @id
+  firstName String
+  lastName  String
+  events    Event[]
+}
+
+enum Season {
+  AW
+  SS
+}
+
 model Outfit {
-  id          Int      @default(autoincrement()) @id
-  season      String
+  id          Int    @default(autoincrement()) @id
+  season      Season
   description String
-  guests      Guest[]
+  guestId     Int?
   designerId  Int
-  designer    Designer @relation(fields: [designerId], references: [id])
-  modelId     Int
-  model       Model    @relation(fields: [modelId], references: [id])
 }
