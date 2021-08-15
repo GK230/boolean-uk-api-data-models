@@ -18,26 +18,35 @@ model Designer {
 }
 
 model Event {
-  id        Int        @default(autoincrement()) @id
-  name      String
-  guests    Guest[]    @relation(references: [id])
+  id        Int              @default(autoincrement()) @id
+  location  String
   designers Designer[]
-  modelId   Int?
+  guests    GuestsOnEvents[]
 }
 
 model Guest {
-  id        Int      @default(autoincrement()) @id
+  id        Int              @default(autoincrement()) @id
   firstName String
   lastName  String
-  events    Event[]  @relation(references: [id])
   outfits   Outfit[]
+  eventId   Int?
+  events    GuestsOnEvents[]
+}
+
+model GuestsOnEvents {
+  guest   Guest @relation(fields: [guestId], references: [id])
+  guestId Int
+  event   Event @relation(fields: [eventId], references: [id])
+  eventId Int
+
+  @@id([guestId, eventId])
 }
 
 model Model {
-  id        Int     @default(autoincrement()) @id
+  id        Int      @default(autoincrement()) @id
   firstName String
   lastName  String
-  events    Event[]
+  outfits   Outfit[]
 }
 
 enum Season {
@@ -46,9 +55,13 @@ enum Season {
 }
 
 model Outfit {
-  id          Int    @default(autoincrement()) @id
+  id          Int      @default(autoincrement()) @id
   season      Season
   description String
   guestId     Int?
   designerId  Int
+  designer    Designer @relation(fields: [designerId], references: [id])
+  guest       Guest?   @relation(fields: [guestId], references: [id])
+  modelId     Int?
+  model       Model?   @relation(fields: [modelId], references: [id])
 }

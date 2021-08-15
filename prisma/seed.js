@@ -46,8 +46,8 @@ const events = [
 
 const guests = [
   {
-    firstName: "Princess",
-    lastName: "Kate",
+    firstName: "Kate",
+    lastName: "Windsor",
   },
   {
     firstName: "Gwenth",
@@ -144,3 +144,75 @@ const getRandomElement = (array) => {
   const number = Math.floor(Math.random() * array.length);
   return array[number];
 };
+
+const seed = async () => {
+  const arrayEventsPromises = events.map(async (event) => {
+    return await dbClient.event.create({
+      data: event,
+    });
+  });
+
+  const createdEvents = await Promise.all(arrayEventsPromises);
+  const eventId = createdEvents.map(({ id }) => id);
+
+  const arrayGuestsPromises = guests.map(async (guest) => {
+    return await dbClient.guest.create({
+      data: {
+        ...guest,
+        outfit: { connect: { id: parseInt(getRandomElement(outfitId)) } },
+      },
+    });
+  });
+
+  const createdGuests = await Promise.all(arrayGuestsPromises);
+  const guestId = createdGuests.map(({ id }) => id);
+
+  const arrayModelsPromises = events.map(async (model) => {
+    return await dbClient.model.create({
+      data: model,
+    });
+  });
+
+  const createdModels = await Promise.all(arrayModelsPromises);
+  const modelId = createdModels.map(({ id }) => id);
+
+  const arrayOutfitsPromises = outfits.map(async (outfit) => {
+    return await dbClient.outfit.create({
+      data: {
+        ...outfit,
+        designer: { connect: { id: parseInt(getRandomElement(designerId)) } },
+        guest: { connect: { id: parseInt(getRandomElement(guestId)) } },
+        event: { connect: { id: parseInt(getRandomElement(eventId)) } },
+        model: { connect: { id: parseInt(getRandomElement(modelId)) } },
+      },
+    });
+  });
+  const createdOutfits = await Promise.all(arrayOutfitsPromises);
+
+  const outfitId = createdOutfits.map(({ id }) => id);
+
+  const arrayDesignersPromises = designers.map(async (designer) => {
+    return await dbClient.designer.create({
+      data: {
+        ...designer,
+        event: { connect: { id: parseInt(getRandomElement(eventIds)) } },
+      },
+    });
+  });
+
+  const createdDesigners = await Promise.all(arrayDesignersPromises);
+  const designerId = createdDesigners.map(({ id }) => id);
+
+  console.log(
+    "designers",
+    createdDesigners,
+    "models",
+    createdModels,
+    "events",
+    createdEvents
+  );
+};
+
+seed()
+  .catch((error) => console.log(error))
+  .finally(async () => await dbClient.$disconnect());
