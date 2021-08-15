@@ -153,21 +153,9 @@ const seed = async () => {
   });
 
   const createdEvents = await Promise.all(arrayEventsPromises);
-  const eventId = createdEvents.map(({ id }) => id);
+  const eventIds = createdEvents.map(({ id }) => id);
 
-  const arrayGuestsPromises = guests.map(async (guest) => {
-    return await dbClient.guest.create({
-      data: {
-        ...guest,
-        outfit: { connect: { id: parseInt(getRandomElement(outfitId)) } },
-      },
-    });
-  });
-
-  const createdGuests = await Promise.all(arrayGuestsPromises);
-  const guestId = createdGuests.map(({ id }) => id);
-
-  const arrayModelsPromises = events.map(async (model) => {
+  const arrayModelsPromises = models.map(async (model) => {
     return await dbClient.model.create({
       data: model,
     });
@@ -176,20 +164,14 @@ const seed = async () => {
   const createdModels = await Promise.all(arrayModelsPromises);
   const modelId = createdModels.map(({ id }) => id);
 
-  const arrayOutfitsPromises = outfits.map(async (outfit) => {
-    return await dbClient.outfit.create({
-      data: {
-        ...outfit,
-        designer: { connect: { id: parseInt(getRandomElement(designerId)) } },
-        guest: { connect: { id: parseInt(getRandomElement(guestId)) } },
-        event: { connect: { id: parseInt(getRandomElement(eventId)) } },
-        model: { connect: { id: parseInt(getRandomElement(modelId)) } },
-      },
+  const arrayGuestsPromises = guests.map(async (guest) => {
+    return await dbClient.guest.create({
+      data: guest,
     });
   });
-  const createdOutfits = await Promise.all(arrayOutfitsPromises);
 
-  const outfitId = createdOutfits.map(({ id }) => id);
+  const createdGuests = await Promise.all(arrayGuestsPromises);
+  const guestId = createdGuests.map(({ id }) => id);
 
   const arrayDesignersPromises = designers.map(async (designer) => {
     return await dbClient.designer.create({
@@ -202,6 +184,20 @@ const seed = async () => {
 
   const createdDesigners = await Promise.all(arrayDesignersPromises);
   const designerId = createdDesigners.map(({ id }) => id);
+
+  const arrayOutfitsPromises = outfits.map(async (outfit) => {
+    return await dbClient.outfit.create({
+      data: {
+        ...outfit,
+        designer: { connect: { id: parseInt(getRandomElement(designerId)) } },
+        guest: { connect: { id: parseInt(getRandomElement(guestId)) } },
+        model: { connect: { id: parseInt(getRandomElement(modelId)) } },
+      },
+    });
+  });
+  const createdOutfits = await Promise.all(arrayOutfitsPromises);
+
+  const outfitId = createdOutfits.map(({ id }) => id);
 
   console.log(
     "designers",
